@@ -19,6 +19,7 @@ struct is_annotated<
   Outer,
   std::void_t<decltype(   ::ecrypa::detail::feed_annotator_into<Outer>()   )>
 > : std::true_type {
+// TODO: check for return type (must not pick an annotated base class)
   static_assert(std::is_same<std::decay_t<Outer>, Outer>{});
 };
 

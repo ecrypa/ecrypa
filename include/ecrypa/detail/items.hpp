@@ -47,7 +47,7 @@ class base_impl {
     )
   );
 
-  static constexpr std::string_view inner_name() {
+  static constexpr const char* inner_name() {
     return base_name_for_derived<Base, Derived>;
   }
 
@@ -78,27 +78,28 @@ struct item_impl<idx, Derived, base_annotation<Derived, Base>> {
 template<std::size_t idx, class Outer, class Inner>
 class nonref_member_impl {
  private:
-  static constexpr auto member_obj_ptr =
-    annotation_tuple_element<idx, Outer>::get().member_obj_ptr;
+  static constexpr auto member_obj_ptr() {
+    return annotation_tuple_element<idx, Outer>::get().member_obj_ptr;
+  }
 
  public:
   using inner_type = Inner;
 
-  static constexpr std::string_view inner_name() {
-    return member_name<Outer, Inner, member_obj_ptr>;
+  static constexpr const char* inner_name() {
+    return annotation_tuple_element<idx, Outer>::get().name;
   }
 
   constexpr inner_type& operator()(Outer& s) const {
-    return s.*member_obj_ptr;
+    return s.*member_obj_ptr();
   }
   constexpr const inner_type& operator()(const Outer& s) const {
-    return s.*member_obj_ptr;
+    return s.*member_obj_ptr();
   }
   constexpr inner_type&& operator()(Outer&& s) const {
-    return std::move(s).*member_obj_ptr;
+    return std::move(s).*member_obj_ptr();
   }
   constexpr const inner_type&& operator()(const Outer&& s) const {
-    return std::move(s).*member_obj_ptr;
+    return std::move(s).*member_obj_ptr();
   }
 
   static constexpr auto is_base = std::false_type{};
@@ -121,7 +122,7 @@ struct ref_member_impl {
  public:
   using inner_type = typename decltype(ref_annotation)::inner_type;
 
-  static constexpr std::string_view inner_name() { return ref_annotation.name; }
+  static constexpr const char* inner_name() { return ref_annotation.name; }
 
   constexpr inner_type operator()(const Outer& self) const {
     return static_cast<inner_type>( ref_annotation(std::addressof(self)).ref );
@@ -140,7 +141,7 @@ struct item_impl<idx, Outer, ref_member_annotation<Outer, Accessor>> {
 
 template<class Outer, class... Items>
 constexpr std::size_t find_nonunique_member_name(Items...) {
-  constexpr std::array names{Items::inner_name()...};
+  constexpr std::array names{std::string_view{Items::inner_name()}...};
   constexpr std::array is_member{bool{Items::is_member}...};
 
   for(std::size_t i=0; i<sizeof...(Items); ++i) {// no constexpr algorithms :-(

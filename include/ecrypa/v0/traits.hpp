@@ -13,6 +13,9 @@ template<class Outer>
 using is_annotated =
   detail::is_annotated<Outer>;
 
+template<class Outer>
+using is_annotated_t = typename is_annotated<Outer>::type;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class From, class To>
@@ -42,6 +45,23 @@ is_unambiguous_protected_base_of_nonfinal =
 template<class Base, class Derived>
 using is_unambiguous_effectively_private_base_of =
   detail::is_unambiguous_effectively_private_base_of<Base, Derived>;
+
+////////////////////////////////////////////////////////////////////////////////
+
+// TODO: categorize into detail vs non-detail
+constexpr auto use_ecrypa_serialization(...) -> std::false_type;
+
+template<class Outer>
+constexpr auto has_ecrypa_serialization_(Outer* outer)
+  -> std::conjunction<
+    is_annotated<Outer>,
+    std::is_same<decltype(use_ecrypa_serialization(outer)), std::true_type>
+  >;
+
+template<class Outer_, class Outer = std::decay_t<Outer_>>
+struct has_ecrypa_serialization
+  : decltype( has_ecrypa_serialization_(std::declval<Outer*>()) )
+{};
 
 ////////////////////////////////////////////////////////////////////////////////
 

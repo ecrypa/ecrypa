@@ -10,24 +10,25 @@ inline namespace v0 {
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-constexpr std::string_view type_name() {
+constexpr const char* type_name() {
+//  constexpr std::size_t size = detail::type_name<T>.size();
   return detail::type_name<T>;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class Outer, class Inner, Inner Outer::* member_ptr>
-constexpr std::string_view member_name() {
-  return detail::member_name<Outer, Inner, member_ptr>;
+constexpr const char* member_name() {
+  return detail::get_member_name<Inner Outer::*, member_ptr>(member_ptr);
 }
 
 template<class MemberPtr, MemberPtr member_ptr>
-constexpr std::string_view member_name() {
+constexpr const char* member_name() {
   return detail::get_member_name<MemberPtr, member_ptr>(member_ptr);
 }
 
 template<auto member_ptr>
-constexpr std::string_view member_name() {
+constexpr const char* member_name() {
   return detail::get_member_name<decltype(member_ptr), member_ptr>(member_ptr);
 }
 

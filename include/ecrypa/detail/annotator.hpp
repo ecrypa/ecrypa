@@ -31,6 +31,19 @@ struct annotator {
     ->     ref_member_annotation<Outer, Accessor>
   { return ref_member_annotation<Outer, Accessor>{accessor, name}; }
 
+  template<class Dependent, class Result>
+  struct hack_ {
+    using type = Result;
+  };
+
+  template<class... Ts>
+  using hack = typename hack_<Ts...>::type;
+
+  template<class Inner>
+  constexpr auto operator()(Inner hack<Inner, Outer>::* member_ptr, const char* name) const
+    ->     nonref_member_annotation<Outer, Inner>
+  { return nonref_member_annotation<Outer, Inner>{member_ptr, name}; }
+
 // freeze the value category of reference members
   template<class Ref> static constexpr auto rref(Ref& ref)
   { return rref_wrapper<std::remove_reference_t<Ref>>{std::move(ref)}; }

@@ -2,7 +2,6 @@
 
 #include <cstddef>
 
-#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -34,7 +33,7 @@ class item : private detail::item_impl_t<idx_, Outer> {
   using inner_type = I;
   using outer_type = O;
 
-  static constexpr std::string_view inner_name() { return Impl::inner_name(); }
+  static constexpr const char* inner_name() { return Impl::inner_name(); }
   static constexpr std::string_view inner_type_name() { return type_name<I>(); }
   static constexpr std::string_view outer_type_name() { return type_name<O>(); }
 
